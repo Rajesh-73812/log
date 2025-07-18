@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const [isResetMode, setIsResetMode] = useState(false);
   const [form, setForm] = useState({ email: '', password: '' });
-  const [errors, setErrors] = useState({});
-  const [showResetModal, setShowResetModal] = useState(false);
   const [resetForm, setResetForm] = useState({ email: '', newPassword: '', confirmPassword: '' });
+  const [errors, setErrors] = useState({});
   const [resetErrors, setResetErrors] = useState({});
   const navigate = useNavigate();
 
@@ -31,19 +31,6 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (validateLogin()) {
-      const users = JSON.parse(localStorage.getItem('users')) || [];
-      const user = users.find(u => u.email === form.email && u.password === form.password);
-      const token = btoa(JSON.stringify({ email: form.email, timestamp: Date.now() })); // Simple base64 token
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('loggedInUser', JSON.stringify(user));
-      setForm({ email: '', password: '' });
-      navigate('/dashboard');
-    }
-  };
-
   const validateReset = () => {
     const newErrors = {};
     const users = JSON.parse(localStorage.getItem('users')) || [];
@@ -57,8 +44,8 @@ const Login = () => {
     }
     if (!resetForm.newPassword) {
       newErrors.newPassword = 'New password is required';
-    } else if (resetForm.newPassword.length < 8) {
-      newErrors.newPassword = 'Password must be at least 8 characters';
+    } else if (resetForm.newPassword.length < 6) {
+      newErrors.newPassword = 'Password must be at least 6 characters';
     }
     if (resetForm.newPassword !== resetForm.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
@@ -68,120 +55,119 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleResetPassword = () => {
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (validateLogin()) {
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+      const user = users.find(u => u.email === form.email && u.password === form.password);
+      const token = btoa(JSON.stringify({ email: form.email, timestamp: Date.now() }));
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('loggedInUser', JSON.stringify(user));
+      setForm({ email: '', password: '' });
+      navigate('/dashboard');
+    }
+  };
+
+  const handleResetPassword = (e) => {
+    e.preventDefault();
     if (validateReset()) {
       const users = JSON.parse(localStorage.getItem('users')) || [];
       const userIndex = users.findIndex(u => u.email === resetForm.email);
       users[userIndex].password = resetForm.newPassword;
       localStorage.setItem('users', JSON.stringify(users));
       alert('Password reset successful! Please login with your new password.');
-      setShowResetModal(false);
       setResetForm({ email: '', newPassword: '', confirmPassword: '' });
       setResetErrors({});
+      setIsResetMode(false);
     }
   };
 
   return (
-    <div className="auth-container max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
-      <form onSubmit={handleLogin} className="space-y-4">
-        <div className="form-group">
-          <label className="block text-sm font-medium text-gray-700">Email</label>
-          <input
-            type="email"
-            className="mt-1 block w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
-            placeholder="Enter your email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
-          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-        </div>
-        <div className="form-group">
-          <label className="block text-sm font-medium text-gray-700">Password</label>
-          <input
-            type="password"
-            className="mt-1 block w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
-            placeholder="Enter your password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-          />
-          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-        </div>
-        {errors.form && <p className="text-red-500 text-sm mt-1 text-center">{errors.form}</p>}
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition"
-        >
-          Login
-        </button>
-      </form>
-      {/* <button
-        className="block w-full text-center text-blue-500 mt-3 hover:underline"
-        onClick={() => setShowResetModal(true)}
-      >
-        Forgot Password?
-      </button> */}
-
-      {/* Reset Password Modal */}
-      {showResetModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Reset Password</h3>
-            <div className="space-y-4">
-              <div className="form-group">
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <input
-                  type="email"
-                  className="mt-1 block w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
-                  placeholder="Enter your email"
-                  value={resetForm.email}
-                  onChange={(e) => setResetForm({ ...resetForm, email: e.target.value })}
-                />
-                {resetErrors.email && <p className="text-red-500 text-sm mt-1">{resetErrors.email}</p>}
-              </div>
-              <div className="form-group">
-                <label className="block text-sm font-medium text-gray-700">New Password</label>
-                <input
-                  type="password"
-                  className="mt-1 block w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
-                  placeholder="Enter new password"
-                  value={resetForm.newPassword}
-                  onChange={(e) => setResetForm({ ...resetForm, newPassword: e.target.value })}
-                />
-                {resetErrors.newPassword && <p className="text-red-500 text-sm mt-1">{resetErrors.newPassword}</p>}
-              </div>
-              <div className="form-group">
-                <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-                <input
-                  type="password"
-                  className="mt-1 block w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
-                  placeholder="Confirm new password"
-                  value={resetForm.confirmPassword}
-                  onChange={(e) => setResetForm({ ...resetForm, confirmPassword: e.target.value })}
-                />
-                {resetErrors.confirmPassword && <p className="text-red-500 text-sm mt-1">{resetErrors.confirmPassword}</p>}
-              </div>
-              <div className="flex justify-end space-x-2">
-                <button
-                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
-                  onClick={() => {
-                    setShowResetModal(false);
-                    setResetForm({ email: '', newPassword: '', confirmPassword: '' });
-                    setResetErrors({});
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                  onClick={handleResetPassword}
-                >Reset Password
-                </button>
-              </div>
+    <div className="container min-vh-100 d-flex align-items-center justify-content-center">
+      <div className="card shadow-lg p-4" style={{ maxWidth: '400px', width: '100%' }}>
+        <h2 className="text-center mb-4">{isResetMode ? 'Reset Password' : 'Login'}</h2>
+        {isResetMode ? (
+          <form onSubmit={handleResetPassword}>
+            <div className="mb-3">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                className="form-control"
+                placeholder="Enter your email"
+                value={resetForm.email}
+                onChange={(e) => setResetForm({ ...resetForm, email: e.target.value })}
+              />
+              {resetErrors.email && <div className="text-danger small mt-1">{resetErrors.email}</div>}
             </div>
-          </div>
-        </div>
-      )}
+            <div className="mb-3">
+              <label className="form-label">New Password</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Enter new password"
+                value={resetForm.newPassword}
+                onChange={(e) => setResetForm({ ...resetForm, newPassword: e.target.value })}
+              />
+              {resetErrors.newPassword && <div className="text-danger small mt-1">{resetErrors.newPassword}</div>}
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Confirm Password</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Confirm new password"
+                value={resetForm.confirmPassword}
+                onChange={(e) => setResetForm({ ...resetForm, confirmPassword: e.target.value })}
+              />
+              {resetErrors.confirmPassword && <div className="text-danger small mt-1">{resetErrors.confirmPassword}</div>}
+            </div>
+            <button type="submit" className="btn btn-primary w-100">Reset Password</button>
+            <p className="text-center mt-3 small">
+              <a href="#" className="text-primary" onClick={(e) => { e.preventDefault(); setIsResetMode(false); }}>
+                Back to Login
+              </a>
+            </p>
+          </form>
+        ) : (
+          <form onSubmit={handleLogin}>
+            <div className="mb-3">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                className="form-control"
+                placeholder="Enter your email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+              {errors.email && <div className="text-danger small mt-1">{errors.email}</div>}
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Password</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Enter your password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+              />
+              {errors.password && <div className="text-danger small mt-1">{errors.password}</div>}
+            </div>
+            {errors.form && <div className="alert alert-danger small mt-1 text-center">{errors.form}</div>}
+            <button type="submit" className="btn btn-primary w-100">Login</button>
+            <p className="text-center mt-3 small">
+              <a href="#" className="text-primary" onClick={(e) => { e.preventDefault(); setIsResetMode(true); }}>
+                Forgot Password?
+              </a>
+            </p>
+            <p className="text-center mt-2 small">
+              Don't have an account yet?{' '}
+              <a href="/" className="text-primary" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
+                Create your free account now
+              </a>
+            </p>
+          </form>
+        )}
+      </div>
     </div>
   );
 };

@@ -25,18 +25,18 @@ const Dashboard = () => {
     navigate('/login');
   };
 
-
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold text-center mb-6">Welcome, {user?.name || 'Guest'}!</h1>
-      <h2 className="text-2xl font-semibold text-center mb-4">User Dashboard</h2>
-      <button
-        className="mb-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-        onClick={handleSignOut}
-      >
-        Sign Out
-      </button>
-      
+    <div className="container mt-5">
+      <div className="card shadow-lg p-4 mx-auto" style={{ maxWidth: '800px' }}>
+        <h1 className="text-center mb-4">Welcome, {user?.name || 'Guest'}!</h1>
+        <h2 className="text-center mb-4">User Dashboard</h2>
+        <button
+          className="btn btn-danger mb-4"
+          onClick={handleSignOut}
+        >
+          Sign Out
+        </button>
+      </div>
     </div>
   );
 };

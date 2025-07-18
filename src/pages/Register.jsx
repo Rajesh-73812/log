@@ -10,7 +10,11 @@ const Register = () => {
     const newErrors = {};
     const users = JSON.parse(localStorage.getItem('users')) || [];
 
-    if (!form.name.trim()) newErrors.name = 'Name is required';
+    if (!form.name.trim()) {
+      newErrors.name = 'Name is required';
+    } else if (form.name.trim().length < 3) {
+      newErrors.name = 'Name must be at least 3 characters';
+    }
     if (!form.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(form.email)) {
@@ -20,8 +24,8 @@ const Register = () => {
     }
     if (!form.password) {
       newErrors.password = 'Password is required';
-    } else if (form.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+    } else if (form.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
     }
     if (form.confirmpassword !== form.password) {
       newErrors.confirmpassword = 'Passwords do not match';
@@ -44,60 +48,63 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-container max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold text-center mb-6">Register</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="form-group">
-          <label className="block text-sm font-medium text-gray-700">Name</label>
-          <input
-            type="text"
-            className="mt-1 block w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
-            placeholder="Enter your name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-        </div>
-        <div className="form-group">
-          <label className="block text-sm font-medium text-gray-700">Email</label>
-          <input
-            type="email"
-            className="mt-1 block w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
-            placeholder="Enter your email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
-          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-        </div>
-        <div className="form-group">
-          <label className="block text-sm font-medium text-gray-700">Password</label>
-          <input
-            type="password"
-            className="mt-1 block w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
-            placeholder="Enter your password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-          />
-          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-        </div>
-        <div className="form-group">
-          <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-          <input
-            type="password"
-            className="mt-1 block w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
-            placeholder="Confirm your password"
-            value={form.confirmpassword}
-            onChange={(e) => setForm({ ...form, confirmpassword: e.target.value })}
-          />
-          {errors.confirmpassword && <p className="text-red-500 text-sm mt-1">{errors.confirmpassword}</p>}
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition"
-        >
-          Register
-        </button>
-      </form>
+    <div className="container min-vh-100 d-flex align-items-center justify-content-center">
+      <div className="card shadow-lg p-4" style={{ maxWidth: '400px', width: '100%' }}>
+        <h2 className="text-center mb-4">Register</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label">Name</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Enter your name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+            {errors.name && <div className="text-danger small mt-1">{errors.name}</div>}
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              className="form-control"
+              placeholder="Enter your email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+            {errors.email && <div className="text-danger small mt-1">{errors.email}</div>}
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              className="form-control"
+              placeholder="Enter your password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+            />
+            {errors.password && <div className="text-danger small mt-1">{errors.password}</div>}
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Confirm Password</label>
+            <input
+              type="password"
+              className="form-control"
+              placeholder="Confirm your password"
+              value={form.confirmpassword}
+              onChange={(e) => setForm({ ...form, confirmpassword: e.target.value })}
+            />
+            {errors.confirmpassword && <div className="text-danger small mt-1">{errors.confirmpassword}</div>}
+          </div>
+          <button type="submit" className="btn btn-primary w-100">Register</button>
+        </form>
+        <p className="text-center mt-3 small">
+          Already have an account?{' '}
+          <a href="/login" className="text-primary" onClick={(e) => { e.preventDefault(); navigate('/login'); }}>
+            Login here
+          </a>
+        </p>
+      </div>
     </div>
   );
 };
