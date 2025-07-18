@@ -7,11 +7,10 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
     const storedUser = JSON.parse(localStorage.getItem('loggedInUser'));
     const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
 
-    if (!token || !storedUser) {
+    if (!storedUser) {
       navigate('/login');
     } else {
       setUser(storedUser);
@@ -20,7 +19,6 @@ const Dashboard = () => {
   }, [navigate]);
 
   const handleSignOut = () => {
-    localStorage.removeItem('authToken');
     localStorage.removeItem('loggedInUser');
     navigate('/login');
   };
